@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>プレイサポートルーム 🏃‍♂️</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            background-color: #0f171e;
+            color: #ffffff;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .game-container {
+            background: rgba(26, 37, 47, 0.95);
+            border: 4px solid #34495e;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.5);
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+            position: relative;
+        }
+        .game-title {
+            color: #f1c40f;
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(241, 196, 15, 0.3);
+        }
+        .rule-box {
+            background: rgba(0,0,0,0.3);
+            border-left: 5px solid #f39c12;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: left;
+            margin-bottom: 25px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        .setup-box {
+            background: #2c3e50;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .settings-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+            align-items: flex-end;
+        }
+        .setting-item label {
+            display: block;
+            font-size: 0.75rem;
+            color: #bdc3c7;
+            margin-bottom: 5px;
+            white-space: nowrap;
+            text-align: center;
+        }
+        .setting-item input {
+            width: 100%;
+            max-width: 120px;
+            margin: 0 auto;
+            display: block;
+            padding: 8px 4px;
+            border-radius: 5px;
+            border: none;
+            text-align: center;
+            font-size: 1rem;
+            font-weight: bold;
+            box-sizing: border-box;
+        }
+        
+        .status-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 20px 0;
+            min-height: 140px;
+            width: 100%;
+        }
+        .timer-status-top {
+            font-size: 1.2rem;
+            color: #e67e22;
+            font-weight: bold;
+            line-height: 1.3;
+        }
+        .timer-display {
+            font-size: 3.5rem;
+            font-weight: 900;
+            color: #2ecc71;
+            margin: 8px 0;
+            font-family: monospace;
+            text-shadow: 0 0 15px rgba(46, 204, 113, 0.4);
+            line-height: 1;
+        }
+        .timer-status-bottom {
+            font-size: 1.2rem;
+            color: #e67e22;
+            font-weight: bold;
+            line-height: 1.3;
+        }
+
+        .btn-3d-base {
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: transform 0.05s ease, box-shadow 0.05s ease;
+            position: relative;
+            outline: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-3d-base:active {
+            transform: translateY(4px) !important;
+        }
+
+        .btn-start-3d {
+            background: linear-gradient(180deg, #2ecc71, #27ae60);
+            color: white;
+            padding: 12px 30px;
+            font-size: 1.2rem;
+            width: 100%;
+            max-width: 250px;
+            box-shadow: 0 5px 0 #1e7e43;
+            text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.2);
+        }
+        .btn-start-3d:hover {
+            background: linear-gradient(180deg, #27ae60, #2ecc71);
+        }
+        .btn-start-3d:active {
+            box-shadow: 0 1px 0 #1e7e43 !important;
+        }
+
+        .btn-start-3d.stop {
+            background: linear-gradient(180deg, #e74c3c, #c0392b) !important;
+            box-shadow: 0 5px 0 #962d22 !important;
+        }
+        .btn-start-3d.stop:hover {
+            background: linear-gradient(180deg, #c0392b, #e74c3c) !important;
+        }
+        .btn-start-3d.stop:active {
+            box-shadow: 0 1px 0 #962d22 !important;
+        }
+
+        .btn-back-3d {
+            background: linear-gradient(180deg, #95a5a6, #7f8c8d);
+            color: white;
+            padding: 8px 20px;
+            font-size: 0.9rem;
+            width: 100%;
+            max-width: 180px;
+            box-shadow: 0 4px 0 #626d6e;
+            text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.2);
+        }
+        .btn-back-3d:hover {
+            background: linear-gradient(180deg, #7f8c8d, #95a5a6);
+        }
+        .btn-back-3d:active {
+            box-shadow: 0 1px 0 #626d6e !important;
+        }
+
+        .oni-management-box {
+            margin-top: 25px;
+            background: rgba(0,0,0,0.2);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #34495e;
+        }
+        .current-oni-badge {
+            background: #ff3344;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 12px;
+            box-shadow: 0 0 10px rgba(255,51,68,0.4);
+        }
+        .current-oni-display-wrapper {
+            display: inline-block;
+            padding-bottom: 4px;
+            border-bottom: 4px solid #ff3344;
+            margin-bottom: 15px;
+            min-width: 140px;
+        }
+        .member-counter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .counter-card {
+            background: #1a252f;
+            border: 2px solid #34495e;
+            border-radius: 8px;
+            padding: 8px;
+            text-align: center;
+            cursor: pointer;
+            position: relative;
+        }
+        .counter-card.is-oni {
+            border-color: #ff3344;
+            background: rgba(255, 51, 68, 0.1);
+        }
+        
+        .counter-count {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #f1c40f;
+            margin-top: 3px;
+            display: block;
+        }
+
+        .count-number {
+            display: inline-block;
+            border-bottom: 3px solid #f1c40f !important;
+            padding-bottom: 1px;
+            line-height: 1;
+        }
+
+        .result-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .result-modal {
+            background: #1e272e;
+            border: 4px solid #f1c40f;
+            border-radius: 20px;
+            max-width: 500px;
+            width: 100%;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+            text-align: center;
+            animation: popIn 0.3s ease-out;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        @keyframes popIn {
+            0% { transform: scale(0.9); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .result-title {
+            color: #f1c40f;
+            font-size: 1.8rem;
+            margin-top: 0;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px rgba(241, 196, 15, 0.5);
+        }
+        .result-winners {
+            background: rgba(46, 204, 113, 0.1);
+            border: 2px solid #2ecc71;
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .winner-names {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #2ecc71;
+            margin-top: 5px;
+            display: inline-block;
+            text-align: left;
+            word-break: break-all;
+            max-width: 100%;
+        }
+        .result-mvp {
+            background: rgba(241, 196, 15, 0.15);
+            border: 2px solid #f1c40f;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .mvp-names {
+            font-size: 1.7rem;
+            font-weight: bold;
+            color: #f1c40f;
+            margin-top: 5px;
+            text-shadow: 0 0 8px rgba(241, 196, 15, 0.4);
+            display: inline-block;
+            text-align: left;
+            word-break: break-all;
+            max-width: 100%;
+        }
+        .result-section-title {
+            font-size: 1.1rem;
+            color: #bdc3c7;
+            margin-top: 15px;
+            margin-bottom: 8px;
+            text-align: left;
+            border-left: 4px solid #34495e;
+            padding-left: 8px;
+        }
+        .history-list {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: left;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            word-wrap: break-word;
+        }
+        .history-step {
+            display: inline-block;
+            background: #c0392b;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            margin: 3px;
+        }
+        .history-arrow {
+            color: #bdc3c7;
+            font-weight: bold;
+            margin: 0 2px;
+        }
+        .result-scores {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+        }
+        .score-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            border-bottom: 1px dashed #34495e;
+            font-size: 0.95rem;
+        }
+        .score-row:last-child {
+            border-bottom: none;
+        }
+    </style>
+    <script src="game-common.js" defer></script>
+    <script src="game-normal.js" defer></script>
+</head>
+<body>
+
+    <!-- 🎵 BGM用オーディオタグ -->
+    <audio id="bgm-horror" src="horror-bgm.mp3" loop preload="auto"></audio>
+    
+    <!-- 🔊 カウントダウン効果音用オーディオタグ -->
+    <audio id="se-count" src="interval-count.mp3" preload="auto"></audio>
+
+    <div class="game-container">
+        <h1 id="game-title" class="game-title">おにごっこ</h1>
+        
+        <div id="rule-box" class="rule-box"></div>
+
+        <div id="setup-box" class="setup-box">
+            <div class="settings-grid">
+                <div class="setting-item">
+                    <label>🏃‍♂️ 試合時間 (秒)</label>
+                    <input type="number" id="input-game-time" value="180" min="10">
+                </div>
+                <div class="setting-item">
+                    <label>⏳ 交代インターバル (秒)</label>
+                    <input type="number" id="input-interval-time" value="10" min="0">
+                </div>
+            </div>
+
+            <!-- 🎵 BGM ON/OFF 切り替えスイッチ -->
+            <div class="setting-item" style="margin-bottom: 15px; text-align: center; background: rgba(0,0,0,0.3); padding: 8px; border-radius: 8px;">
+                <label style="font-weight: bold; color: #f39c12; margin-right: 10px; display: inline;">🎵 BGM設定:</label>
+                <label style="cursor: pointer; margin-right: 15px; color: #fff; display: inline;">
+                    <input type="radio" name="bgm-toggle" value="on" checked style="width: auto; display: inline;"> ON
+                </label>
+                <label style="cursor: pointer; color: #fff; display: inline;">
+                    <input type="radio" name="bgm-toggle" value="off" style="width: auto; display: inline;"> OFF
+                </label>
+            </div>
+
+            <button id="btn-start" class="btn-3d-base btn-start-3d" onclick="toggleGame()">スタート！</button>
+        </div>
+
+        <div class="status-container">
+            <div class="timer-status-top" id="timer-status-top">最初の鬼を選んでスタートしてね！</div>
+            <div class="timer-display" id="timer-display">00:00</div>
+            <div class="timer-status-bottom" id="timer-status-bottom"></div>
+        </div>
+
+        <div class="oni-management-box">
+            <div>
+                <span class="current-oni-badge">現在の鬼</span><br>
+                <div class="current-oni-display-wrapper">
+                    <div id="current-oni-name" style="font-size: 1.6rem; font-weight: bold; color: #ff3344; letter-spacing: 1px;">
+                        (下のカードをタップして決定)
+                    </div>
+                </div>
+            </div>
+            
+            <h3 style="font-size: 1rem; color: #bdc3c7; margin-top: 20px; margin-bottom: 5px;">
+                📋 タッチされたプレイヤーをタップして鬼交代！ (鬼になった回数)
+            </h3>
+            <div id="counter-grid" class="member-counter-grid"></div>
+        </div>
+
+        <button type="button" class="btn-3d-base btn-back-3d" style="margin-top: 25px;" onclick="location.href='index.html'">
+            ⬅ もどる
+        </button>
+    </div>
+
+    <div id="result-overlay" class="result-overlay">
+        <div class="result-modal">
+            <h2 class="result-title">🏆 結果発表 🏆</h2>
+            
+            <div class="result-winners" style="padding: 15px;">
+                <div style="font-size: 1.1rem; color: #2ecc71; font-weight: bold; margin-bottom: 2px;">🏃‍♂️ 逃げ切り勝者</div>
+                <div style="font-size: 0.8rem; color: #27ae60; margin-bottom: 10px;">（最後の鬼以外の全員）</div>
+                
+                <div style="border-top: 2px dashed rgba(46, 204, 113, 0.4); margin: 0 15px 12px 15px; width: 90%;"></div>
+                
+                <div id="result-winner-names" class="winner-names" style="font-size: 1.5rem;">-</div>
+            </div>
+
+            <div class="result-mvp" style="padding: 15px;">
+                <div style="font-size: 1.1rem; color: #f1c40f; font-weight: bold; margin-bottom: 2px;">👑 最優秀逃げ切り賞</div>
+                <div style="font-size: 0.8rem; color: #f39c12; margin-bottom: 10px;">（最も鬼になった回数が少ない！）</div>
+                
+                <div style="border-top: 2px dashed rgba(241, 196, 15, 0.4); margin: 0 15px 12px 15px; width: 90%;"></div>
+                
+                <div id="result-mvp-names" class="mvp-names" style="font-size: 1.7rem;">-</div>
+            </div>
+
+            <div class="result-section-title">📜 鬼になった順番（歴史）</div>
+            <div id="result-history" class="history-list"></div>
+
+            <div class="result-section-title">📊 鬼になった回数</div>
+            <div id="result-scores" class="result-scores"></div>
+
+            <button class="btn-3d-base btn-start-3d" style="max-width: 200px;" onclick="closeResultModal()">閉じる</button>
+        </div>
+    </div>
+
+</body>
+</html>

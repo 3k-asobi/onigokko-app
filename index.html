@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <link rel="icon" type="image/png" href="./favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <link rel="shortcut icon" href="./favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-title" content="おにごっこサポーター" />
+    <link rel="manifest" href="./site.webmanifest" />
+    <script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js')
+        .then(reg => console.log('SW registered:', reg))
+        .catch(err => console.log('SW registration failed:', err));
+    });
+  }
+</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>運動遊びサポートアプリ（おにごっこ系）</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* 💾 グループ保存・呼び出しエリア用の追加スタイル（ゴールド枠パターン） */
+        .group-save-box {
+            background: rgba(11, 12, 16, 0.9); /* 少し深めの黒背景 */
+            border: 2px solid #f39c12;         /* ゴールドの実線枠 */
+            box-shadow: 0 0 10px rgba(243, 156, 18, 0.2); /* ほんのり光るエフェクト */
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            text-align: left;
+            box-sizing: border-box;
+            width: 100%;
+        }
+        .group-save-title {
+            font-size: 0.9rem;
+            color: #f1c40f;
+            font-weight: bold;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .group-input-row {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 12px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .group-input-row input {
+            flex: 1;
+            min-width: 0;
+            padding: 8px 10px;
+            background-color: #0b0c10;
+            border: 1px solid #7f8c8d;
+            border-radius: 6px;
+            color: white;
+            font-size: 0.85rem;
+            box-sizing: border-box;
+        }
+
+        /* 🖲️ 【共通】立体3Dボタンの基礎デザイン */
+        .btn-3d-base {
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            flex-shrink: 0;
+            border-radius: 6px;
+            transition: transform 0.05s ease, box-shadow 0.05s ease;
+            position: relative;
+            outline: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        /* クリック（アクティブ）したときに沈み込むアニメーション */
+        .btn-3d-base:active {
+            transform: translateY(3px); /* 3px下に沈む */
+        }
+
+        /* 🟨 1. 保存ボタン（ゴールド） */
+        .btn-group-save {
+            background: linear-gradient(180deg, #f1c40f, #f39c12);
+            color: #0b0c10;
+            padding: 8px 14px;
+            box-shadow: 0 4px 0 #b35d00; /* 下側の厚み */
+        }
+        .btn-group-save:hover {
+            background: linear-gradient(180deg, #f39c12, #f1c40f);
+        }
+        .btn-group-save:active {
+            box-shadow: 0 1px 0 #b35d00;
+        }
+
+        .group-select-row {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .group-select-row select {
+            flex: 1;
+            min-width: 0;
+            padding: 8px;
+            background-color: #0b0c10;
+            border: 1px solid #7f8c8d;
+            border-radius: 6px;
+            color: white;
+            font-size: 0.85rem;
+            box-sizing: border-box;
+        }
+
+        /* 🟩 2. 呼び出すボタン（グリーン） */
+        .btn-group-load {
+            background: linear-gradient(180deg, #2ecc71, #27ae60);
+            color: white;
+            padding: 8px 14px;
+            box-shadow: 0 4px 0 #1e7e43;
+            text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.2);
+        }
+        .btn-group-load:hover {
+            background: linear-gradient(180deg, #27ae60, #2ecc71);
+        }
+        .btn-group-load:active {
+            box-shadow: 0 1px 0 #1e7e43;
+        }
+
+        /* 🟥 3. 削除バツボタン（レッド） */
+        .btn-group-delete {
+            background: linear-gradient(180deg, #e74c3c, #c0392b);
+            color: white;
+            padding: 8px 12px;
+            box-sizing: border-box;
+            box-shadow: 0 4px 0 #962d22;
+        }
+        .btn-group-delete:hover {
+            background: linear-gradient(180deg, #c0392b, #e74c3c);
+        }
+        .btn-group-delete:active {
+            box-shadow: 0 1px 0 #962d22;
+        }
+
+        /* 🟧 【新規】エントリーする専用 3Dメインボタン */
+        .btn-entry-3d {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.1rem !important; /* 文字を少し大きく */
+            letter-spacing: 2px;
+            background: linear-gradient(180deg, #f39c12, #e67e22) !important; /* オレンジ系のグラデーション */
+            color: #0b0c10 !important;
+            box-shadow: 0 6px 0 #b35d00 !important; /* 太めの立体シャドウ */
+            border-radius: 8px !important;
+        }
+        .btn-entry-3d:hover {
+            background: linear-gradient(180deg, #e67e22, #f39c12) !important;
+        }
+        .btn-entry-3d:active {
+            transform: translateY(5px) !important; /* 大きめボタンなので多めに沈ませる */
+            box-shadow: 0 1px 0 #b35d00 !important;
+        }
+
+        /* 📜 利用規約・プライバシーポリシー用モーダル表示スタイル */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .modal-body {
+            background: #1e272e;
+            border: 3px solid #f1c40f;
+            border-radius: 15px;
+            max-width: 550px;
+            width: 100%;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            text-align: left;
+            max-height: 80vh;
+            overflow-y: auto;
+            color: #ecf0f1;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            box-sizing: border-box;
+        }
+        .modal-body h2 {
+            color: #f1c40f;
+            text-align: center;
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+        }
+        .modal-body h3 {
+            color: #2ecc71;
+            font-size: 1.05rem;
+            margin-top: 15px;
+            margin-bottom: 5px;
+            border-left: 4px solid #2ecc71;
+            padding-left: 8px;
+        }
+        .modal-body ul {
+            padding-left: 20px;
+            margin: 5px 0;
+        }
+        .modal-body a {
+            color: #3498db;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- 🛠️ タイトルロゴ -->
+        <h1 class="logo-container">
+            <img src="title-logo.png" alt="おにごっこサポーター" class="main-title-logo">
+        </h1>
+        
+        <!-- 1. キャラクターエントリーエリア -->
+        <div class="setup-section">
+            <h2>👤 プレイヤーエントリー</h2>
+            
+            <h3>キャラクターを選択</h3>
+            <div class="char-grid" id="char-grid"></div>
+
+            <!-- 名前入力欄 -->
+            <div class="input-group" style="margin-top: 15px; margin-bottom: 15px;">
+                <input type="text" id="player-name" placeholder="プレイヤー名を入力...">
+            </div>
+
+            <!-- エントリーするボタン -->
+            <button id="btn-entry" class="btn-3d-base btn-entry-3d">エントリーする</button>
+        </div>
+
+        <!-- 🔴 3. 登録済みプレイヤー一覧 -->
+        <div class="players-section" style="margin-top: 20px;">
+            <h2>📋 参加メンバー</h2>
+            
+            <div class="player-list" id="player-list" style="box-sizing: border-box; width: 100%; padding: 15px;">
+                <!-- JavaScriptから動的にプレイヤー追加 -->
+            </div>
+
+            <!-- 💾 グループ保存・呼び出し機能エリア（ゴールド枠×深め背景） -->
+            <div class="group-save-box">
+                <div class="group-save-title">💾 グループの保存・呼び出し</div>
+                
+                <!-- 新規保存 -->
+                <div class="group-input-row">
+                    <input type="text" id="group-name-input" placeholder="グループ名を入力...">
+                    <button class="btn-3d-base btn-group-save" onclick="saveCurrentGroup()">保存</button>
+                </div>
+                
+                <!-- 呼び出しと削除 -->
+                <div class="group-select-row">
+                    <select id="group-select">
+                        <option value="">-- 保存したグループを選択 --</option>
+                    </select>
+                    <button class="btn-3d-base btn-group-load" onclick="loadSelectedGroup()">呼び出す</button>
+                    <button class="btn-3d-base btn-group-delete" onclick="deleteSelectedGroup()" title="削除">❌</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. オニ選出エリア -->
+        <div class="oni-section" style="margin-top: 30px; text-align: center;">
+            <p>👑 鬼をきめよう！</p>
+            <button type="button" id="btn-open-slot" class="btn-next-step" style="background: linear-gradient(180deg, #f1c40f, #f39c12); box-shadow: 0px 6px 0px #d35400; white-space: nowrap; display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
+                <span>🎰 スロットを回す！</span>
+            </button>
+            <div id="oni-result" class="oni-result-box" style="margin-top: 15px;"></div>
+        </div>
+
+        <!-- 🎮 次の画面へ進むボタンエリア -->
+        <div class="navigation-area" id="nav-to-selection">
+            <button type="button" class="btn-next-step" onclick="localStorage.setItem('selectedGameType', 'normal'); location.href='game.html';">
+                <span>おにごっこで遊ぼう！</span>
+                <i class="arrow-icon">▶</i>
+            </button>
+        </div>
+
+        <!-- 🏃‍♂️ おにごっこ種類選択エリア（最初は非表示） -->
+        <div class="game-selection-section" id="game-selection-section" style="display: none;">
+            <h2>🏃‍♂️ おにごっこをはじめよう！</h2>
+            
+            <div class="game-card-grid">
+                <!-- おにごっこのみ保持 -->
+                <div class="game-card">
+                    <div class="game-card-icon">🏃‍♂️</div>
+                    <h3>おにごっこ</h3>
+                    <p>鬼にタッチされないように、コート内を全力でかけまわろう！</p>
+                    <button class="select-game-btn" onclick="localStorage.setItem('selectedGameType', 'normal'); location.href='game.html';">これであそぶ！</button>
+                </div>
+            </div>
+
+            <!-- もどるボタン -->
+            <button type="button" class="btn-back" onclick="goBackToEntry()">⬅ エントリー画面にもどる</button>
+        </div>
+
+        <!-- 🦶 フッター（利用規約・プライバシーポリシー リンク） -->
+        <footer style="margin-top: 40px; margin-bottom: 10px; text-align: center; font-size: 0.8rem; color: #bdc3c7;">
+            <a href="#" onclick="openLegalModal('modal-terms'); return false;" style="color: #bdc3c7; text-decoration: underline; margin: 0 10px;">利用規約・免責事項</a> | 
+            <a href="#" onclick="openLegalModal('modal-privacy'); return false;" style="color: #bdc3c7; text-decoration: underline; margin: 0 10px;">プライバシーポリシー</a>
+        </footer>
+
+    </div>
+
+    <!-- 📜 利用規約・免責事項 モーダル -->
+    <div id="modal-terms" class="modal-overlay">
+        <div class="modal-body">
+            <h2>利用規約・免責事項</h2>
+            
+            <h3>1. 安全管理および免責事項</h3>
+            <ul>
+                <li>本アプリケーション（以下「本アプリ」）はおにごっこ等の運動遊びをサポートするためのタイマー・進行補助ツールです。</li>
+                <li>プレイする際は、周囲の状況や安全を十分確認し、怪我のないよう各自の責任においてご使用ください。</li>
+                <li>本アプリの使用中に発生した事故、怪我、トラブル、端末の破損、紛失等について、制作者は一切の責任を負いかねます。</li>
+            </ul>
+
+            <h3>2. 禁止事項</h3>
+            <ul>
+                <li>本アプリのプログラムや素材の不正な再配布、無断での商用転用、リバースエンジニアリング等を禁止します。</li>
+            </ul>
+
+            <h3>3. 使用音源素材の権利表記</h3>
+            <p>本アプリ内で使用している音声素材の著作権は、以下の提供元サイト様に帰属します。</p>
+            <ul>
+                <li>BGM素材: <a href="https://amachamusic.chagasi.com/" target="_blank" rel="noopener">甘茶の音楽工房</a></li>
+                <li>効果音素材: <a href="https://taira-komori.net/" target="_blank" rel="noopener">小森平の使い方</a></li>
+            </ul>
+
+            <h3>4. サービスの変更・停止</h3>
+            <ul>
+                <li>本アプリは予告なく内容の変更、更新、または公開の停止を行う場合があります。</li>
+            </ul>
+
+            <button class="btn-3d-base btn-entry-3d" style="margin-top: 20px; padding: 10px !important; font-size: 0.95rem !important;" onclick="closeLegalModal('modal-terms')">閉じる</button>
+        </div>
+    </div>
+
+    <!-- 🔒 プライバシーポリシー モーダル -->
+    <div id="modal-privacy" class="modal-overlay">
+        <div class="modal-body">
+            <h2>プライバシーポリシー</h2>
+            
+            <h3>1. 個人情報の収集・利用について</h3>
+            <p>本アプリでは、ユーザーの個人情報（氏名、電話番号、メールアドレス、位置情報等）をサーバー等へ送信・収集することは一切ありません。</p>
+
+            <h3>2. データの保存方法</h3>
+            <p>登録されたプレイヤー名や保存したグループ情報、ゲームの履歴データは、お使いの端末（ブラウザの LocalStorage 機能）内にのみローカル保存されます。第三者にデータが共有・送信されることはありません。</p>
+
+            <h3>3. データの消去方法</h3>
+            <p>保存されたデータは、お使いのブラウザの閲覧履歴やサイトデータを消去することで、いつでも完全に削除することができます。</p>
+
+            <button class="btn-3d-base btn-entry-3d" style="margin-top: 20px; padding: 10px !important; font-size: 0.95rem !important;" onclick="closeLegalModal('modal-privacy')">閉じる</button>
+        </div>
+    </div>
+
+    <div id="flash-screen" class="flash-effect"></div>
+
+    <!-- ⚙️ モーダル制御用インラインJS -->
+    <script>
+        function openLegalModal(id) {
+            document.getElementById(id).style.display = 'flex';
+        }
+        function closeLegalModal(id) {
+            document.getElementById(id).style.display = 'none';
+        }
+    </script>
+    <script src="app.js"></script>
+</body>
+</html>

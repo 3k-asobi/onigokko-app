@@ -1,0 +1,601 @@
+/* ==========================================
+   アプリ全体の基本デザイン
+   ========================================== */
+body {
+    /* 🔽 シャープで読みやすいフォント */
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    
+    /* 🏟️ ドット絵スタジアム背景を画面いっぱいに表示する設定 */
+    background-image: url('background.png'); 
+    background-size: cover;          /* 画面の縦横比に合わせて隙間なく引き伸ばす */
+    background-position: center;     /* 画面が狭くなっても常に画像の中央を基準にする */
+    background-attachment: fixed;    /* スクロールしても背景だけは固定する */
+    image-rendering: pixelated;      /* ドット絵がボヤけずクッキリ表示されるおまじない */
+    
+    color: #c5c6c7;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+#app {
+    background-color: rgba(15, 12, 41, 0.8); 
+    border-radius: 16px;
+    padding: 30px;
+    width: 100%;
+    max-width: 700px;
+    
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+    box-sizing: border-box;
+}
+
+/* 🎮 作成された画像ロゴのレスポンシブ設定 */
+h1.logo-container {
+    margin-top: 0;
+    margin-bottom: 25px;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: transparent;
+    border: none;
+    overflow: visible;
+}
+
+/* 👹 ロゴ画像本体のクオリティ向上設定 */
+.main-title-logo {
+    width: 100%;
+    max-width: 450px;
+    height: auto;
+    object-fit: contain;
+    flex-shrink: 0;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: -webkit-crisp-edges;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+}
+
+h2 {
+    color: #f39c12;
+    font-size: 1.3rem;
+    border-bottom: 2px solid #f39c12;
+    padding-bottom: 8px;
+    margin-top: 0;
+    letter-spacing: 0.5px;
+}
+
+h3 {
+    font-size: 1rem;
+    color: #a4a5a6;
+    margin-top: 20px;
+}
+
+/* 入力エリア ＆ 各セクションのグループ背景 */
+.setup-section, .oni-section, .players-section {
+    background: #151a21;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    box-sizing: border-box;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 12px;
+    background-color: #0b0c10;
+    border: 1px solid #f39c12;
+    border-radius: 6px;
+    color: white;
+    font-size: 1rem;
+    box-sizing: border-box;
+}
+
+/* 👥 キャラクター選択グリッド */
+.char-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 12px;
+    margin: 15px 0;
+    padding: 10px;
+    background: #0b0c10;
+    border-radius: 8px;
+    min-height: 90px;
+}
+
+/* キャラ選択のカード外枠 */
+.char-card {
+    background: #1f2833;
+    border: 2px solid #0b111e;
+    border-radius: 8px;
+    aspect-ratio: 1 / 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    overflow: hidden;
+    position: relative;
+    box-sizing: border-box;
+}
+
+.char-card:hover {
+    border-color: #f39c12;
+    transform: translateY(-2px);
+}
+
+.char-card.selected {
+    border-color: #f1c40f;
+    box-shadow: 0 0 15px #f1c40f;
+    transform: scale(1.05);
+}
+
+.char-card img {
+    width: 64px !important;
+    height: 64px !important;
+    object-fit: contain !important;
+    display: block;
+    margin: 0 auto;
+    image-rendering: pixelated !important;
+    image-rendering: crisp-edges !important;
+}
+
+/* ボタン関係 */
+.main-button {
+    width: 100%;
+    padding: 14px;
+    background: #f39c12;
+    color: #0b0c10;
+    border: none;
+    border-radius: 6px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.main-button:hover {
+    background: #f1c40f;
+    box-shadow: 0 0 15px rgba(241, 196, 15, 0.5);
+}
+
+/* ==========================================
+   🧰 自作イラスト（鬼の顔）＆ オニ選出セクション
+   ========================================== */
+.oni-section {
+    text-align: center;
+    /* 🔽 【大画面対応】どんな画面幅でも中身が必ず「縦に一列」かつ「中央揃え」になるように指定 */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 「鬼をきめよう！」ボタン（改行・はみ出しを防ぐ設定は維持） */
+.oni-section > p {
+    color: #f1c40f !important;
+    font-weight: bold;
+    margin: 0 auto 20px auto;
+    padding: 10px 24px;
+    background-color: #0b0c10;      
+    border: 1px solid #f39c12;       
+    border-radius: 20px;            
+    display: inline-block;          
+    max-width: 95%;                 
+    white-space: nowrap;            
+    overflow: hidden;               
+    text-overflow: ellipsis;        
+    font-size: clamp(0.9rem, 4.5vw, 1.2rem); 
+    box-sizing: border-box;
+}
+
+/* 「🎰 スロットを回す！」ボタン用の個別幅調整 */
+#btn-open-slot {
+    max-width: 280px;
+    width: 100%;
+}
+
+.slot-machine-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    margin: 20px auto;
+    max-width: 450px;
+    position: relative;
+}
+
+/* 👹 鬼の顔コンテナ */
+.treasure-chest-container {
+    position: relative;
+    width: 100%;
+    max-width: 280px;
+    aspect-ratio: 13 / 12;
+    z-index: 1;
+}
+
+/* 自作した鬼の顔イラスト */
+.chest-image-bg {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 4;
+    pointer-events: none; 
+    image-rendering: pixelated;
+}
+
+/* 🎰 スロット窓の配置用ラッパー */
+.slot-window-wrapper {
+    position: absolute;
+    top: 26%;       
+    left: 15%;     
+    width: 70%;   
+    height: 50%;   
+    z-index: 2;
+    overflow: hidden;
+    border-radius: 4px;
+}
+
+/* 🎰 のぞき窓本体 */
+.slot-window {
+    background: #000000; 
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: inset 0 5px 10px rgba(0,0,0,0.8);
+    box-sizing: border-box;
+}
+
+/* 🎰 縦に回転するリール本体 */
+.slot-reel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0; 
+    width: 60%; 
+    position: absolute;
+    top: 0;
+    box-sizing: border-box;
+}
+
+/* リール内の各プレイヤー枠 */
+.reel-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 70px;
+    width: 100%;
+    background-color: #ffffff; 
+    flex-shrink: 0;
+    box-sizing: border-box;
+}
+
+.reel-item img {
+    width: 44px !important;  
+    height: 44px !important;
+    object-fit: contain !important;
+    image-rendering: pixelated !important;
+    image-rendering: crisp-edges !important;
+}
+
+.reel-item .slot-name {
+    font-size: 0.75rem; 
+    font-weight: bold;
+    color: #1f2833; 
+    margin-top: 2px;
+    white-space: nowrap; 
+}
+
+/* READY文字の初期表示 */
+#slot-display-name {
+    color: #7f8c8d;
+    font-size: 1.1rem;
+    font-weight: bold;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #000000; 
+}
+
+/* ==========================================
+   🚀 レバーの設定
+   ========================================== */
+.lever-container {
+    position: relative;
+    width: 50px;
+    height: 140px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 5; 
+}
+
+.lever-base {
+    position: absolute;
+    bottom: 25px;
+    width: 42px;
+    height: 42px;
+    background: linear-gradient(135deg, #d4af37, #aa7c11);
+    border: 3px solid #5c3a21;
+    border-radius: 50%;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+    z-index: 7;
+}
+
+.lever-shaft {
+    position: absolute;
+    bottom: 45px;
+    width: 10px;
+    height: 85px;
+    background: linear-gradient(to right, #f1c40f, #f39c12, #d4af37);
+    border-radius: 5px;
+    transform-origin: bottom center;
+    transform: rotate(0deg);
+    transition: transform 0.15s ease-in-out;
+    cursor: pointer;
+    z-index: 6;
+}
+
+.lever-ball {
+    position: absolute;
+    top: -24px;
+    left: -12px;
+    width: 34px;
+    height: 34px;
+    background: radial-gradient(circle at 30% 30%, #e67e22, #d35400, #800000);
+    border-radius: 50%;
+    box-shadow: 0 5px 10px rgba(0,0,0,0.4);
+}
+
+.lever-shaft.pulled {
+    transform: rotateX(60deg) scaleY(0.5) translateY(40px);
+}
+
+/* ==========================================
+   確定演出
+   ========================================== */
+.oni-result-box {
+    margin-top: 25px;
+    font-weight: bold;
+    color: #e74c3c;
+    min-height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    width: 100%;
+    box-sizing: border-box;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: clamp(1.05rem, 4.2vw, 1.5rem) !important; 
+}
+
+.oni-announced {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    max-width: 100%;
+    animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.oni-announced img {
+    width: 44px !important;
+    height: 44px !important;
+    object-fit: contain !important;
+    image-rendering: pixelated !important;
+    image-rendering: crisp-edges !important;
+    flex-shrink: 0;
+}
+
+@keyframes popIn {
+    0% { transform: scale(0); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.hit-shake {
+    animation: shake 0.4s ease-in-out;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-6px) rotate(-1deg); }
+    40%, 80% { transform: translateX(6px) rotate(1deg); }
+}
+
+.flash-effect {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: white;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 9999;
+}
+
+.flash-effect.trigger-flash {
+    animation: flashAnim 0.4s ease-out;
+}
+
+@keyframes flashAnim {
+    0% { opacity: 0.8; }
+    100% { opacity: 0; }
+}
+
+/* 下部の参加メンバー一覧のアイコン */
+.player-list img {
+    width: 32px !important;
+    height: 32px !important;
+    object-fit: contain !important;
+    image-rendering: pixelated !important;
+    image-rendering: crisp-edges !important;
+}
+
+.player-list {
+    margin-top: 15px;
+}
+
+/* -----------------------------------------------------------
+   👹 次へ進むアクションボタン（おにごっこレッド版）
+----------------------------------------------------------- */
+.navigation-area {
+    margin-top: 30px;
+    margin-bottom: 20px;
+    text-align: center;
+    width: 100%;
+}
+
+.btn-next-step {
+    background: linear-gradient(180deg, #ff4757, #ff6b81);
+    color: #ffffff;
+    font-size: clamp(1.1rem, 4vw, 1.4rem);
+    font-weight: bold;
+    padding: 14px 35px;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0px 6px 0px #b32d38, 0px 10px 15px rgba(0, 0, 0, 0.4);
+    transition: all 0.1s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.btn-next-step span {
+    text-shadow: -1px -1px 0 #b32d38, 1px -1px 0 #b32d38, -1px 1px 0 #b32d38, 1px 1px 0 #b32d38;
+}
+
+.arrow-icon {
+    font-style: normal;
+    display: inline-block;
+    animation: bounceRight 0.6s infinite alternate;
+}
+
+@keyframes bounceRight {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(4px); }
+}
+
+.btn-next-step:active {
+    transform: translateY(4px);
+    box-shadow: 0px 2px 0px #b32d38, 0px 4px 10px rgba(0, 0, 0, 0.6);
+}
+
+/* -----------------------------------------------------------
+   🏃‍♂️ おにごっこ種類選択エリア
+----------------------------------------------------------- */
+.game-selection-section {
+    animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.game-card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+    margin-bottom: 30px;
+}
+
+.game-card {
+    background: #1a252f;
+    border: 3px solid #34495e;
+    border-radius: 15px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+    transition: transform 0.2s;
+}
+
+.game-card:hover {
+    transform: translateY(-4px);
+    border-color: #00daff;
+}
+
+.game-card-icon {
+    font-size: 3rem;
+    margin-bottom: 10px;
+}
+
+.game-card h3 {
+    color: #00daff;
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 1.3rem;
+}
+
+.game-card p {
+    color: #bdc3c7;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin-bottom: 20px;
+    min-height: 4.5em;
+}
+
+.select-game-btn {
+    background: linear-gradient(180deg, #e67e22, #d35400);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    width: 100%;
+    box-shadow: 0 4px 0 #a04000;
+}
+
+.select-game-btn:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 #a04000;
+}
+
+.btn-back {
+    background: #7f8c8d;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+/* ==========================================
+   🚨 枠線（border）消去用オーバーライド設定
+   ========================================== */
+
+/* 1. 「👑 鬼をきめよう！」の枠線を消す */
+.oni-section > p {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/* 2. JavaScriptで動的に生成される「鬼は【〜】に決定！」内の枠線を強制作消去 */
+#oni-result,
+#oni-result *,
+.oni-result-box,
+.oni-result-box * {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+}

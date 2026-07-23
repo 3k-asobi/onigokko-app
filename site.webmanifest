@@ -1,0 +1,36 @@
+{
+  "id": "/onigokko-app/",
+  "name": "おにごっこサポーター",
+  "short_name": "おにサポ",
+  "start_url": "/onigokko-app/",
+  "scope": "/onigokko-app/",
+  "display": "standalone",
+  "background_color": "#0f171e",
+  "theme_color": "#0f171e",
+  "icons": [
+    {
+      "src": "./web-app-manifest-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./web-app-manifest-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "./web-app-manifest-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./web-app-manifest-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

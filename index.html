@@ -6,7 +6,8 @@
     <link rel="shortcut icon" href="./favicon.ico" />
     <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png" />
     <meta name="apple-mobile-web-app-title" content="おにごっこサポーター" />
-    <link rel="manifest" href="./site.webmanifest" />
+    <!-- 修正後（crossorigin を追加し、読み込みエラーを完全に防止） -->
+<link rel="manifest" href="./site.webmanifest" crossorigin="use-credentials" />
     <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {

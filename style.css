@@ -599,3 +599,29 @@ h3 {
     outline: none !important;
     box-shadow: none !important;
 }
+
+/* ==========================================
+   🚫 コピー・ドラッグ防止設定（追記）
+   ========================================== */
+
+/* アプリ全体のテキスト選択（ハイライト）を禁止 */
+body {
+    -webkit-user-select: none; /* Safari / Chrome */
+    -moz-user-select: none;    /* Firefox */
+    -ms-user-select: none;     /* IE / Edge */
+    user-select: none;        /* 標準 */
+}
+
+/* 画像の長押し保存やドラッグ＆ドロップを防止 */
+img {
+    pointer-events: none;
+    -webkit-user-drag: none;
+}
+
+/* ⚠️ 名前入力欄やグループ選択などのフォーム要素は文字入力・操作を許可 */
+input, textarea, select {
+    -webkit-user-select: auto !important;
+    -moz-user-select: auto !important;
+    -ms-user-select: auto !important;
+    user-select: auto !important;
+}

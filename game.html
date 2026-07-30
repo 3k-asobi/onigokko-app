@@ -80,6 +80,64 @@
             box-sizing: border-box;
         }
         
+        /* 🔊 音設定パネル用のスタイル */
+        .sound-settings-box {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid #f39c12;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        .sound-setting-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+        }
+        .sound-setting-row:last-child {
+            margin-bottom: 0;
+            justify-content: center;
+        }
+        .sound-setting-row label {
+            color: #f39c12;
+            font-weight: bold;
+            width: 130px; /* 💡 ラベル幅を広げて重なりを解消 */
+            white-space: nowrap;
+            text-align: left;
+            flex-shrink: 0;
+        }
+        .sound-setting-row input[type="range"] {
+            flex: 1;
+            margin: 0 10px;
+            accent-color: #f1c40f;
+            cursor: pointer;
+            min-width: 0;
+        }
+        .sound-val-text {
+            color: #fff;
+            width: 40px;
+            text-align: right;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+        .btn-mute-3d {
+            background: #34495e;
+            color: #fff;
+            border: none;
+            border-bottom: 3px solid #1a252f;
+            padding: 6px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+        .btn-mute-3d:active {
+            transform: translateY(2px);
+            border-bottom-width: 1px;
+        }
+
         .status-container {
             display: flex;
             flex-direction: column;
@@ -388,15 +446,21 @@
                 </div>
             </div>
 
-            <!-- 🎵 BGM ON/OFF 切り替えスイッチ -->
-            <div class="setting-item" style="margin-bottom: 15px; text-align: center; background: rgba(0,0,0,0.3); padding: 8px; border-radius: 8px;">
-                <label style="font-weight: bold; color: #f39c12; margin-right: 10px; display: inline;">🎵 BGM設定:</label>
-                <label style="cursor: pointer; margin-right: 15px; color: #fff; display: inline;">
-                    <input type="radio" name="bgm-toggle" value="on" checked style="width: auto; display: inline;"> ON
-                </label>
-                <label style="cursor: pointer; color: #fff; display: inline;">
-                    <input type="radio" name="bgm-toggle" value="off" style="width: auto; display: inline;"> OFF
-                </label>
+            <!-- 🔊 音声・音量設定パネル -->
+            <div class="sound-settings-box">
+                <div class="sound-setting-row">
+                    <label for="bgm-volume">🎵 BGM 音量:</label>
+                    <input type="range" id="bgm-volume" min="0" max="1" step="0.05" value="0.4">
+                    <span id="bgm-volume-val" class="sound-val-text">40%</span>
+                </div>
+                <div class="sound-setting-row">
+                    <label for="se-volume">🔔 SE・音声音量:</label>
+                    <input type="range" id="se-volume" min="0" max="1" step="0.05" value="0.8">
+                    <span id="se-volume-val" class="sound-val-text">80%</span>
+                </div>
+                <div class="sound-setting-row">
+                    <button id="btn-mute-toggle" class="btn-mute-3d">🔇 ミュート OFF</button>
+                </div>
             </div>
 
             <button id="btn-start" class="btn-3d-base btn-start-3d" onclick="toggleGame()">スタート！</button>

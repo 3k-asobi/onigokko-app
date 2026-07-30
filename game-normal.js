@@ -31,18 +31,89 @@ let timeLeft = spec.defaultGameTime;
 let intervalLeft = spec.defaultInterval;
 
 // ==========================================
-// 🎵 音声・効果音 コントロール関数群
+// 🎵 音声・効果音 コントロール設定と変数
 // ==========================================
-function isBgmEnabled() {
-    const bgmSetting = document.querySelector('input[name="bgm-toggle"]:checked');
-    return bgmSetting && bgmSetting.value === 'on';
+let currentBgmVolume = 0.4; // BGM初期音量
+let currentSeVolume = 0.8;  // SE・音声音量初期値
+let isMuted = false;        // ミュート状態
+
+// 画面読み込み時にスライダーとイベントをセットアップ
+document.addEventListener('DOMContentLoaded', () => {
+    const bgmSlider = document.getElementById('bgm-volume');
+    const seSlider = document.getElementById('se-volume');
+    const bgmValText = document.getElementById('bgm-volume-val');
+    const seValText = document.getElementById('se-volume-val');
+    const muteBtn = document.getElementById('btn-mute-toggle');
+
+    // BGMスライダー操作時
+    if (bgmSlider) {
+        bgmSlider.addEventListener('input', (e) => {
+            currentBgmVolume = parseFloat(e.target.value);
+            if (bgmValText) bgmValText.textContent = `${Math.round(currentBgmVolume * 100)}%`;
+            const bgm = document.getElementById('bgm-horror');
+            if (bgm && !isMuted) {
+                bgm.volume = currentBgmVolume;
+            }
+        });
+    }
+
+    // SE・音声音量スライダー操作時
+    if (seSlider) {
+        seSlider.addEventListener('input', (e) => {
+            currentSeVolume = parseFloat(e.target.value);
+            if (seValText) seValText.textContent = `${Math.round(currentSeVolume * 100)}%`;
+            const se = document.getElementById('se-count');
+            if (se && !isMuted) {
+                se.volume = currentSeVolume;
+            }
+        });
+    }
+
+    // ミュートボタン切替時
+    if (muteBtn) {
+        muteBtn.addEventListener('click', () => {
+            isMuted = !isMuted;
+            muteBtn.textContent = isMuted ? "🔊 ミュート ON" : "🔇 ミュート OFF";
+            
+            const bgm = document.getElementById('bgm-horror');
+            if (bgm) bgm.volume = isMuted ? 0 : currentBgmVolume;
+
+            const se = document.getElementById('se-count');
+            if (se) se.volume = isMuted ? 0 : currentSeVolume;
+
+            // 音声読み上げ再生中の場合はキャンセル
+            if (isMuted && 'speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+            }
+        });
+    }
+});
+
+// 🗣️ 音声読み上げ共通関数（音量連動対応）
+function speak(text, rate = 1.0, lang = 'ja-JP', onEndCallback = null) {
+    if (!('speechSynthesis' in window)) return;
+    
+    // 発話の重複防止
+    window.speechSynthesis.cancel();
+
+    const uttr = new SpeechSynthesisUtterance(text);
+    uttr.rate = rate;
+    uttr.lang = lang;
+    
+    // 🔊 ミュート時なら 0、それ以外は SE/音声音量スライダーに連動
+    uttr.volume = isMuted ? 0 : currentSeVolume;
+
+    if (onEndCallback) {
+        uttr.onend = onEndCallback;
+    }
+
+    window.speechSynthesis.speak(uttr);
 }
 
 function playBgm() {
-    if (!isBgmEnabled()) return;
     const bgm = document.getElementById('bgm-horror');
     if (bgm) {
-        bgm.volume = 0.4;
+        bgm.volume = isMuted ? 0 : currentBgmVolume;
         bgm.play().catch(e => console.log("BGM再生エラー:", e));
     }
 }
@@ -62,10 +133,11 @@ function stopBgm() {
     }
 }
 
-// 🔊 カウントダウン効果音の再生（頭出し処理付き）
+// 🔊 カウントダウン効果音の再生（頭出し＆音量設定付き）
 function playCountSE() {
     const se = document.getElementById('se-count');
     if (se) {
+        se.volume = isMuted ? 0 : currentSeVolume;
         se.pause();
         se.currentTime = 0; // 最初に戻す
         se.play().catch(e => console.log("SE再生エラー:", e));
@@ -149,7 +221,6 @@ function changeOni(newName) {
             document.getElementById('timer-status-top').innerHTML = `<span style="color: #e67e22;">⏳ インターバル中！</span>`;
             document.getElementById('timer-status-bottom').innerHTML = `<span style="color: #ff3344;">プレイヤーは逃げて！</span>`;
             
-            // 💡 読み上げ終了時は画面に「10」を表示し、効果音は鳴らさずに待機する
             document.getElementById('timer-display').textContent = intervalLeft;
         });
     } else {
@@ -172,7 +243,10 @@ function toggleGame() {
         isStartingSequence = true;
         btn.textContent = "準備中...";
         btn.classList.add('stop');
-        document.getElementById('setup-box').querySelectorAll('input').forEach(i => i.disabled = true);
+
+        // 💡 修正箇所：試合時間・インターバル設定のみを無効化（音量スライダー類は操作可能にする）
+        document.getElementById('input-game-time').disabled = true;
+        document.getElementById('input-interval-time').disabled = true;
         
         document.getElementById('timer-status-top').textContent = `🚦 まもなくスタート！`;
         document.getElementById('timer-status-top').style.color = "#f1c40f";
@@ -197,11 +271,9 @@ function toggleGame() {
                 if (isIntervalWaiting) {
                     document.getElementById('timer-display').textContent = intervalLeft;
                 } else if (isInterval) {
-                    // 💡 1秒経ったらまずカウントを下げる（10 → 9 へ）
                     intervalLeft--;
 
                     if (intervalLeft <= 0) {
-                        // 🛑 インターバル終了時に効果音を即時ピタッとストップ！
                         stopCountSE();
                         
                         isInterval = false;
@@ -209,11 +281,10 @@ function toggleGame() {
                         document.getElementById('timer-status-top').style.color = "#2ecc71";
                         document.getElementById('timer-status-bottom').textContent = "";
                         document.getElementById('timer-display').style.color = "#2ecc71";
-                        playBeep(true); // 明ける時は高めの電子音
+                        playBeep(true);
                         playBgm();
                         speak("Let's start!", 1.0, 'en-US');
                     } else {
-                        // 💡 カウント9以降から1秒刻みで画面更新＆効果音再生
                         document.getElementById('timer-display').textContent = intervalLeft;
                         document.getElementById('timer-display').style.color = "#f39c12";
                         playCountSE();
@@ -245,12 +316,15 @@ function endGame() {
     isIntervalWaiting = false;
     
     stopBgm();
-    stopCountSE(); // 🛑 試合終了時にも効果音を即時停止
+    stopCountSE();
 
     const btn = document.getElementById('btn-start');
     btn.textContent = "スタート！";
     btn.classList.remove('stop');
-    document.getElementById('setup-box').querySelectorAll('input').forEach(i => i.disabled = false);
+
+    // 💡 修正箇所：終了時に時間設定欄のロックを解除
+    document.getElementById('input-game-time').disabled = false;
+    document.getElementById('input-interval-time').disabled = false;
     
     document.getElementById('timer-status-top').textContent = `🏁 終了！おつかれさまでした！`;
     document.getElementById('timer-status-top').style.color = "#ffff00";

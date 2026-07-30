@@ -8,12 +8,21 @@ function initAudio() {
     }
 }
 
+// 🔊 現在の音量（音声音量 / ミュート状態）を取得するヘルパー関数
+function getTargetSeVolume(defaultGain = 1.0) {
+    if (typeof isMuted !== 'undefined' && isMuted) return 0;
+    if (typeof currentSeVolume !== 'undefined') return currentSeVolume * defaultGain;
+    return defaultGain;
+}
+
 function speak(text, customRate = 1.1, lang = 'ja-JP', onEndCallback = null) {
     if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.lang = lang;
         utterance.rate = customRate;
+        utterance.volume = getTargetSeVolume(1.0); // 💡 音量連動
+
         if (onEndCallback) {
             utterance.onend = onEndCallback;
         }
@@ -28,7 +37,7 @@ function speakEnglishTimesUp() {
         window.speechSynthesis.cancel();
         const utterance = new SpeechSynthesisUtterance("Time's up!");
         utterance.lang = 'en-US';
-        utterance.volume = 1.0;
+        utterance.volume = getTargetSeVolume(1.0); // 💡 音量連動
         utterance.rate = 0.95;
         utterance.pitch = 1.25;
         window.speechSynthesis.speak(utterance);
@@ -37,11 +46,14 @@ function speakEnglishTimesUp() {
 
 function playBeep(isHigh = false) {
     initAudio();
+    const vol = getTargetSeVolume(0.1);
+    if (vol <= 0) return; // ミュート時は再生スキップ
+
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
     osc.type = 'sine';
     osc.frequency.setValueAtTime(isHigh ? 1200 : 800, audioCtx.currentTime);
-    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+    gain.gain.setValueAtTime(vol, audioCtx.currentTime);
     gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
     osc.connect(gain);
     gain.connect(audioCtx.destination);
@@ -51,17 +63,17 @@ function playBeep(isHigh = false) {
 
 function playWhistle(callback) {
     const whistleAudio = new Audio('whistle.mp3');
-    whistleAudio.volume = 1.0;
+    whistleAudio.volume = getTargetSeVolume(1.0); // 💡 音量連動
 
     whistleAudio.play()
         .then(() => {
             whistleAudio.onended = () => {
-                callback();
+                if (callback) callback();
             };
         })
         .catch((error) => {
             console.warn("ホイッスル音声の再生に失敗しました:", error);
-            setTimeout(callback, 100);
+            if (callback) setTimeout(callback, 100);
         });
 }
 
@@ -77,13 +89,16 @@ function playStartSequenceBeeps(callback) {
     ];
 
     beeps.forEach((beep) => {
+        const vol = getTargetSeVolume(0.1);
+        if (vol <= 0) return; // ミュート時は生成スキップ
+
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
         osc.type = 'sine';
         osc.frequency.setValueAtTime(beep.freq, now + beep.time);
         
         const dur = beep.duration || 0.1;
-        gain.gain.setValueAtTime(0.1, now + beep.time);
+        gain.gain.setValueAtTime(vol, now + beep.time);
         gain.gain.linearRampToValueAtTime(0.01, now + beep.time + dur);
         
         osc.connect(gain);
